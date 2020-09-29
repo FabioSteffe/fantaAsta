@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>FantaApp Asta</title>
+    </head>
+    <body>
+        <div>
+            <div style="padding: 20px;">
+                <form id='form' >
+                    <label for="reset-db">Reset Db</label>
+                    <input type="text" value="" id="desc" name="description" />
+                    <input type="submit" value="Submit" />
+                </form>
+                <form id='form-call' >
+                    <label for="call-player">Call player</label>
+                    <input type="text" value="" id="desc-call" name="description" />
+                    <input type="submit" value="Submit" />
+                </form>
+                <form id='form-random' >
+                    <label for="random-player">Call random</label>
+                    <input type="submit" value="Random" />
+                </form>
+            </div>
+            <hr>
+            <div id="result" style="padding: 20px;">
+                <div id='info'>
+                    GIOCATORE D ASTA
+                    <br>
+                    Nome: <span id="playname"></span> , 
+                    <br>
+                    Squadra: <span id="playteam"></span> ,
+                    <br>
+                    Ruolo: <span id="playruolo"></span>,
+                    <br>
+                    Valore: <span id="playvalue"></span>
+                    <br>
+                    Assegnato: <span id="playassegnato"></span>
+                    <br>
+                    <img id="campioncino" src="https://content.fantacalcio.it/web/campioncini/card/NO-CAMPIONCINO.jpg" alt="campioncino">
+                    <br>
+                    <button onclick="vendi()">Venduto!</button>
+                    <button onclick="elimina()">Elimina</button>
+                    <button onclick="archivia()">Archivia</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.getElementById('form').onsubmit = function(e) {
+                e.preventDefault();
+                fetch('/reload', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'description' : document.getElementById('desc').value
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                })
+                .catch(function(){
+                    document.getElementById('error').className = '';
+                })
+            }
+
+            document.getElementById('form-call').onsubmit = function(e) {
+                e.preventDefault();
+                fetch('/call', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'description' : document.getElementById('desc-call').value
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                    document.getElementById('playname').innerHTML = jsonResponse.fullname
+                    document.getElementById('playteam').innerHTML = jsonResponse.team
+                    document.getElementById('playruolo').innerHTML = jsonResponse.position
+                    document.getElementById('playvalue').innerHTML = jsonResponse.value
+                    document.getElementById('playassegnato').innerHTML = jsonResponse.assigned
+                    document.getElementById('campioncino').src = jsonResponse.pic
+                    document.getElementById('campioncino').alt = jsonResponse.fullname
+                    console.log(jsonResponse.pic);
+                })
+                .catch(function(){
+                    console.log('error');
+                })
+            }
+            
+            
+            document.getElementById('form-random').onsubmit = function(e) {
+                e.preventDefault();
+                fetch('/random', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'description' : 'random'
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                    document.getElementById('playname').innerHTML = jsonResponse.fullname
+                    document.getElementById('playteam').innerHTML = jsonResponse.team
+                    document.getElementById('playruolo').innerHTML = jsonResponse.position
+                    document.getElementById('playvalue').innerHTML = jsonResponse.value
+                    document.getElementById('playassegnato').innerHTML = jsonResponse.assigned
+                    document.getElementById('campioncino').src = jsonResponse.pic
+                    document.getElementById('campioncino').alt = jsonResponse.fullname
+                    console.log(jsonResponse.pic);
+                })
+                .catch(function(){
+                    console.log('error');
+                })
+            }
+
+            function elimina () {
+                fullname = document.getElementById('playname').innerHTML
+                team = document.getElementById('playteam').innerHTML
+                console.log('elimina '+fullname);
+                fetch('/action', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'fullname' : fullname,
+                        'team' : team,
+                        'type' : 'delete'
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                })
+                .catch(function(){
+                    console.log('error');
+                })
+            }
+
+            function vendi () {
+                fullname = document.getElementById('playname').innerHTML
+                team = document.getElementById('playteam').innerHTML
+                console.log('vendi '+fullname);
+                fetch('/action', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'fullname' : fullname,
+                        'team' : team,
+                        'type' : 'sell'
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                })
+                .catch(function(){
+                    console.log('error');
+                })
+            }
+
+            function archivia () {
+                fullname = document.getElementById('playname').innerHTML
+                team = document.getElementById('playteam').innerHTML
+                console.log('archivia '+fullname);
+                fetch('/action', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        'fullname' : fullname,
+                        'team' : team,
+                        'type' : 'archive'
+                    }),
+                    headers : {
+                        'content-type' : 'application/json'
+                    }
+                })
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(jsonResponse){
+                    console.log(jsonResponse);
+                })
+                .catch(function(){
+                    console.log('error');
+                })
+            
+            }
+
+        </script>
+    </body>
+</html>
